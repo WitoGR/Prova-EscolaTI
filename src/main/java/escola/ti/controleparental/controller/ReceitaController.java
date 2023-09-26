@@ -17,6 +17,7 @@ import escola.ti.controleparental.model.dto.ReceitaDTO;
 import escola.ti.controleparental.model.dto.ReceitasViewDTO;
 import escola.ti.controleparental.model.dto.RemoveIngredienteDTO;
 import escola.ti.controleparental.model.dto.RemoveReceitaDTO;
+import escola.ti.controleparental.model.dto.UpdateIngredienteDTO;
 import escola.ti.controleparental.model.dto.UpdateReceitaDTO;
 import escola.ti.controleparental.repository.IngredienteRepository;
 import escola.ti.controleparental.repository.ReceitaRepository;
@@ -31,7 +32,7 @@ public class ReceitaController {
     @Autowired
     private IngredienteRepository ingredienteRepository;
 
-    @PostMapping(path="/add-receita")
+    @PostMapping(path="add-receita")
     public ResponseEntity<String> addNewReceita(@RequestBody ReceitaDTO body){
         ReceitaModel receita = new ReceitaModel();
 
@@ -44,7 +45,7 @@ public class ReceitaController {
         return new ResponseEntity<String>("Receita criada com sucesso...", null, 200);
     }
 
-    @PostMapping(path="/add-ingrediente")
+    @PostMapping(path="add-ingrediente")
     public ResponseEntity<String> addNewIngrediente(@RequestBody IngredienteDTO body){
         IngredienteModel ingrediente = new IngredienteModel();
 
@@ -154,10 +155,32 @@ public class ReceitaController {
 
             receitaRepository.save(resposta);
 
-            return new ResponseEntity<String>("Receita atualizada!", null, 400);
+            return new ResponseEntity<String>("Receita atualizada!", null, 200);
         }
 
         return new ResponseEntity<String>("Receita não atualizada", null, 400);
     }
     
+    @PostMapping(path="update-ingrediente")
+    public ResponseEntity<String> updateIngrediente(@RequestBody UpdateIngredienteDTO body){
+        IngredienteModel update = new IngredienteModel();
+
+        for(ReceitaModel r : receitaRepository.findAll()){
+            if(body.getNomeReceita().equals(r.getNome())){
+                for(IngredienteModel i : ingredienteRepository.findAll()){
+                    if(r.getIdReceita().equals(i.getIdReceita())){
+                        if(body.getNomeIngrediente().equals(i.getNome())){
+                            update = i;
+                            update.setNome(body.getNovoNomeIngrediente());
+                            ingredienteRepository.save(update);
+
+                            return new ResponseEntity<String>("Ingrediente atualizado!", null, 200);
+                        }
+                    }
+                }    
+            }
+        }
+
+        return new ResponseEntity<String>("Ingrediente não atualizado", null, 400);
+    }
 }
